@@ -43,7 +43,7 @@ public class BoxFactory {
     }
     private static Box createFixedBox(List<Letter> faces) {
         FixedBox box = new FixedBox(faces);
-        box.setTool(null);          // garanti boş
+        box.setTool(null);          // always empty
         return box;
     }
 

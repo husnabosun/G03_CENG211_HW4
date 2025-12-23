@@ -6,7 +6,7 @@ public class ToolFactory {
 
     private static final Random random = new Random();
 
-    // RegularBox: her tool %15, kalan %25 null
+    // RegularBox: for every tool %15 possibility rest of them are null
     public static SpecialTool createForRegularBox() {
         int randInt = random.nextInt(100); // 0..99
         switch (randInt / 15) {
@@ -25,7 +25,7 @@ public class ToolFactory {
         }
     }
 
-    // UnchangingBox: her tool %20 => kesin tool
+    // UnchangingBox: for every tool % 20 possibility
     public static SpecialTool createForUnchangingBox() {
         int randInt = random.nextInt(100);
 
