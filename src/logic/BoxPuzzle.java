@@ -325,18 +325,38 @@ public class BoxPuzzle {
          * Asks for rolling direction for corner boxes.
          */
         public String getDirectionInput() {
-            System.out.print("The chosen box can be rolled to either [1] Right/Left or [2] Up/Down? (Enter direction name like UP/RIGHT): ");
-            // In a full implementation, you might want to restrict this based on which corner it is.
-            // For now, accepting direct direction string.
-            return scanner.nextLine().toUpperCase();
+            while (true) {
+                System.out.print("The chosen box can be rolled. Enter direction (UP, DOWN, LEFT, RIGHT): ");
+                String input = scanner.nextLine().trim().toUpperCase();
+
+                // Check if the direction is valid.
+                if (input.equals("UP") || input.equals("DOWN") || 
+                    input.equals("LEFT") || input.equals("RIGHT")) {
+                    return input;
+                } else {
+                    //Incorrect input requires asking again.
+                    System.out.println("Invalid direction! Please enter UP, DOWN, LEFT or RIGHT.");
+                }
+            }
         }
 
         /**
          * Asks if the user wants to view the surfaces of a box.
          */
         public boolean askToViewSurfaces() {
-            System.out.print("Do you want to view all surfaces of a box? [1] Yes or [2] No? ");
-            return scanner.nextLine().trim().equals("1");
+            while (true) {
+                System.out.print("Do you want to view all surfaces of a box? [1] Yes or [2] No? ");
+                String input = scanner.nextLine().trim();
+                
+                if (input.equals("1")) {
+                    return true;
+                } else if (input.equals("2")) {
+                    return false;
+                } else {
+                    // Guidelines require re-asking for ANY incorrect input.
+                    System.out.println("Invalid input! Please enter 1 or 2.");
+                }
+            }
         }
     }
 }
