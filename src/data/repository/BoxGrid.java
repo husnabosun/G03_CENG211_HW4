@@ -7,12 +7,16 @@ import enums.Letter;
 import java.util.ArrayList;
 import java.util.List;
 
-/*
-ANSWER TO COLLECTIONS QUESTION:
-I used List<List<Box>> (NESTED ARRAY LIST) to represent the 8x8 grid.
-This satisfies the requirement to use the Java Collections Framework, keeps indexing simple
-and makes printing straightforward for a fixed  size board.
-*/
+/* * ANSWER TO COLLECTIONS QUESTION:
+ * we used List<List<Box>> (NESTED ARRAY LIST) to represent the 8x8 grid.
+ * This satisfies the requirement to use the Java Collections Framework,
+ * keeps indexing simple, and makes printing straightforward for a fixed size board.
+ * Additionally, ArrayList provides an efficient alghorithm for random access, which is
+ * essential for simulating the domino effect during rolls and for tools like
+ * MassRowStamp or MassColumnStamp that require fast traversal of specific rows
+ * and columns.
+ */
+
 
 public class BoxGrid {
     public static final int SIZE = 8;
@@ -34,8 +38,6 @@ public class BoxGrid {
         return grid.get(rowIndex).get(colIndex);
     }
 
-    // TODO: yagmur will need to change whole ROW in MassRowStamp
-    // TODO: and to change whole COLUMN in MassColumnStamp
 
     public List<Box> getRow(int rowNumber) {
         return grid.get(rowNumber);
@@ -49,7 +51,6 @@ public class BoxGrid {
         return column;
     }
 
-    // TODO: yagmur will need to receive 4 neighbours of a box
     public List<Box> getFourNeighbors(int rowIndex, int colIndex) {
         validateBounds(rowIndex, colIndex);
         List<Box> neighbors = new ArrayList<>();
@@ -175,47 +176,43 @@ public class BoxGrid {
     }
 
     private String cellString(Box box) {
-        return typeChar(box) + "-" + box.getTopFace() + "-" + statusChar(box);
+        String type = String.valueOf(box.getBoxTypeMarker());
+        String face = box.getTopFace().toString();
+
+        if (type.equals("X")) {
+            return String.format(" %s-%s-  |", type, face);
+        }
+
+        // Show status marker for others
+        char status = box.getStatusMarker(); // M or O
+        return String.format(" %s-%s-%s |", type, face, status);
     }
 
     @Override
     public String toString() {
-        String result = "";
+        StringBuilder sb = new StringBuilder();
 
-        // Header
-        result += "     ";
-        for (int c = 1; c <= SIZE; c++) {
-            result += "   C" + c + "    ";
+        // Column headers (C1, C2...)
+        sb.append("\n        ");
+        for (int i = 1; i <= SIZE; i++) {
+            sb.append(String.format("C%-7d", i));
         }
-        result += "\n";
-
-        // Separator
-        result += "   ";
-        for (int c = 0; c < SIZE; c++) {
-            result += "---------";
-        }
-        result += "\n";
+        sb.append("\n    ");
+        // Top line
+        for (int i = 0; i < SIZE * 8 + 1; i++) sb.append("-");
+        sb.append("\n");
 
         // Rows
-        for (int r = 0; r < SIZE; r++) {
-
-            result += "R" + (r + 1) + " ";
-
-            for (int c = 0; c < SIZE; c++) {
-                result += "| " + cellString(getBox(r, c)) + " ";
+        for (int i = 0; i < SIZE; i++) {
+            sb.append(String.format("R%-3d|", (i + 1)));
+            for (int j = 0; j < SIZE; j++) {
+                sb.append(cellString(grid.get(i).get(j)));
             }
-            result += "|\n";
-
-            result += "   ";
-            for (int c = 0; c < SIZE; c++) {
-                result += "---------";
-            }
-            result += "\n";
+            sb.append("\n    ");
+            // Seperating line
+            for (int k = 0; k < SIZE * 8 + 1; k++) sb.append("-");
+            sb.append("\n");
         }
-
-        return result;
+        return sb.toString();
     }
-
-
-
 }

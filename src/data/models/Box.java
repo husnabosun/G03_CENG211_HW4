@@ -1,6 +1,7 @@
 package data.models;
 
 import enums.Letter;
+import enums.Direction;
 import tools.SpecialTool;
 import java.util.List;
 
@@ -86,11 +87,11 @@ public abstract class Box {
      *
      * Face indices: 0=Top, 1=Bottom, 2=Front, 3=Back, 4=Left, 5=Right
      */
-    public void roll(String direction) {
+    public void roll(Direction direction) {
         Letter temp;
 
-        switch (direction.toUpperCase()) {
-            case "RIGHT":
+        switch (direction) {
+            case RIGHT:
                 // Top -> Right, Right -> Bottom, Bottom -> Left, Left -> Top
                 temp = boxFaces.get(0);
                 boxFaces.set(0, boxFaces.get(4));  // Left becomes Top
@@ -99,7 +100,7 @@ public abstract class Box {
                 boxFaces.set(5, temp);             // Top becomes Right
                 break;
 
-            case "LEFT":
+            case LEFT:
                 // Top -> Left, Left -> Bottom, Bottom -> Right, Right -> Top
                 temp = boxFaces.get(0);
                 boxFaces.set(0, boxFaces.get(5));  // Right becomes Top
@@ -108,7 +109,7 @@ public abstract class Box {
                 boxFaces.set(4, temp);             // Top becomes Left
                 break;
 
-            case "UP":
+            case UP:
                 // Top -> Back, Back -> Bottom, Bottom -> Front, Front -> Top
                 temp = boxFaces.get(0);
                 boxFaces.set(0, boxFaces.get(2));  // Front becomes Top
@@ -117,7 +118,7 @@ public abstract class Box {
                 boxFaces.set(3, temp);             // Top becomes Back
                 break;
 
-            case "DOWN":
+            case DOWN:
                 // Top -> Front, Front -> Bottom, Bottom -> Back, Back -> Top
                 temp = boxFaces.get(0);
                 boxFaces.set(0, boxFaces.get(3));  // Back becomes Top

@@ -6,6 +6,7 @@ import exceptions.EmptyBoxException;
 import exceptions.UnmovableFixedBoxException;
 import tools.SpecialTool;
 import enums.Letter;
+import enums.Direction;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
@@ -73,14 +74,17 @@ public class BoxPuzzle {
             
             Menu menu = new Menu();
 
-            // OPTIONAL: Allow user to view box surfaces before making a move 
+            // Allows user to view box surfaces before making a move
             if (menu.askToViewSurfaces()) {
                 String loc = menu.getCoordinateInput("Please enter the location of the box you want to view: ");
                 printCubeDiagram(loc);
             }
+            else {
+                System.out.println("Continuing to the first stage...");
+            }
 
-            // --- STAGE 1: ROLLING MECHANISM ---
-            System.out.println("---> TURN " + turn + " FIRST STAGE:");
+            // STAGE 1: ROLLING MECHANISM
+            System.out.println("---> TURN " + turn + " - FIRST STAGE:");
             try {
                 runFirstStage(menu);
                 // Display the grid after the roll to show changes
@@ -89,13 +93,14 @@ public class BoxPuzzle {
             } catch (UnmovableFixedBoxException e) {
                 // If a FixedBox is selected, the turn is wasted 
                 System.out.println("TURN WASTED: " + e.getMessage());
+                continue;
                 // Loop continues to Stage 2, but since movedBoxesCoords is empty, Stage 2 will effectively be skipped.
             } catch (Exception e) {
                 System.out.println("An unexpected error occurred during Stage 1: " + e.getMessage());
             }
 
-            // --- STAGE 2: OPENING AND TOOLS ---
-            System.out.println("---> TURN " + turn + " SECOND STAGE:");
+            // STAGE 2: OPENING AND TOOLS
+            System.out.println("---> TURN " + turn + " - SECOND STAGE:");
             try {
                 runSecondStage(menu);
                 System.out.println("The new state of the box grid:");
@@ -137,7 +142,7 @@ public class BoxPuzzle {
         String direction;
         // If it's a corner, the user must choose the direction 
         if (boxGrid.isCorner(row, col)) {
-            direction = menu.getDirectionInput(); 
+            direction = menu.getDirectionInput(row, col);
         } else {
             // If it's not a corner, direction is automatically inward 
             direction = calculateAutoDirection(row, col);
@@ -159,24 +164,37 @@ public class BoxPuzzle {
      * in the same direction until a FixedBox or the grid boundary is reached.
      */
     private void applyDominoEffect(int startRow, int startCol, String direction) {
-        int dRow = 0, dCol = 0;
-        
-        // Map direction strings to grid coordinate changes
-        switch(direction.toUpperCase()) {
-            case "UP": dRow = -1; break;
-            case "DOWN": dRow = 1; break;
-            case "LEFT": dCol = -1; break;
-            case "RIGHT": dCol = 1; break;
-        }
-
-        // Safety check to prevent infinite loops if direction is invalid
-        if (dRow == 0 && dCol == 0) {
+        // Convert string to Direction enum
+        Direction dir;
+        try {
+            dir = Direction.valueOf(direction.toUpperCase());
+        } catch (IllegalArgumentException e) {
             System.out.println("Error: Invalid direction. Roll cancelled.");
             return;
         }
 
+        int dRow = 0, dCol = 0;
+        
+        // Map direction strings to grid coordinate changes
+        switch(dir) {
+            case UP: dRow = -1; break;
+            case DOWN: dRow = 1; break;
+            case LEFT: dCol = -1; break;
+            case RIGHT: dCol = 1; break;
+        }
+
+        // Print message about rolling
+        boolean isCorner = boxGrid.isCorner(startRow, startCol);
+        if (isCorner) {
+            System.out.println("The chosen box and any box on its path have been rolled " + direction.toLowerCase() + ".");
+        } else {
+            System.out.println("The chosen box is automatically rolled " + direction.toLowerCase() + ".");
+        }
+
         int currR = startRow;
         int currC = startCol;
+
+        boolean stoppedByFixed = false;
 
         // Iterate through the grid in the rolling direction
         while (isValid(currR, currC)) {
@@ -187,11 +205,12 @@ public class BoxPuzzle {
             // the force stops here. The FixedBox itself does not move.
             if (!currentBox.allowsDomino() && (currR != startRow || currC != startCol)) {
                 System.out.println("Domino effect stopped by FixedBox at R" + (currR+1) + "-C" + (currC+1));
+                stoppedByFixed = true;
                 break;
             }
 
             // Perform the roll on the box object 
-            currentBox.roll(direction);
+            currentBox.roll(dir);
             
             // Add this box to the list of moved boxes so it can be opened in Stage 2 
             movedBoxesCoords.add("R" + (currR + 1) + "-C" + (currC + 1));
@@ -200,6 +219,11 @@ public class BoxPuzzle {
             currR += dRow;
             currC += dCol;
         }
+
+        if (stoppedByFixed) {
+            System.out.println("The roll stopped when it reached a FixedBox.");
+        }
+
     }
 
     /**
@@ -268,14 +292,30 @@ public class BoxPuzzle {
      */
     private void printCubeDiagram(String location) {
         Box box = boxGrid.getBoxAt(location);
+        List<Letter> faces = box.getBoxFaces();
         // Assuming BoxFaces indices: 0:Top, 1:Bottom, 2:Front, 3:Back, 4:Left, 5:Right
+
         System.out.println("Box Surfaces for " + location + ":");
-        System.out.println("   " + box.getBoxFaces().get(3)); // Back (Top in 2D view)
-        System.out.print(box.getBoxFaces().get(4) + " "); // Left
-        System.out.print(box.getBoxFaces().get(0) + " "); // TOP (Center)
-        System.out.println(box.getBoxFaces().get(5));     // Right
-        System.out.println("   " + box.getBoxFaces().get(2)); // Front (Bottom in 2D view)
-        System.out.println("   " + box.getBoxFaces().get(1)); // Bottom (Hidden/Extra)
+
+        // Blank spaces for alignment
+        String indent = "      ";
+
+        // TOP
+        System.out.println(indent + "-----");
+        System.out.println(indent + "| " + faces.get(3) + " |");
+
+        // MIDDLE
+        System.out.println("----- ----- -----");
+        System.out.println("| " + faces.get(4) + " | | " + faces.get(0) + " | | " + faces.get(5) + " |");
+        System.out.println("----- ----- -----");
+
+        // BOTTOM
+        System.out.println(indent + "| " + faces.get(2) + " |");
+        System.out.println(indent + "-----");
+
+        // LOWEST
+        System.out.println(indent + "| " + faces.get(1) + " |");
+        System.out.println(indent + "-----");
     }
 
     /**
@@ -307,14 +347,11 @@ public class BoxPuzzle {
                 input = scanner.nextLine().trim().toUpperCase();
                 try {
                     // Validate input format using BoxGrid's parser
-                    boxGrid.parseLocation(input); 
+                    int[] rc = boxGrid.parseLocation(input);
                     
                     // Standardize input to R1-C1 format to ensure consistency with movedBoxesCoords
-                    if (!input.startsWith("R")) {
-                        int[] rc = boxGrid.parseLocation(input);
-                        return "R" + (rc[0]+1) + "-C" + (rc[1]+1);
-                    }
-                    return input;
+                    return "R" + (rc[0] + 1) + "-C" + (rc[1] + 1);
+
                 } catch (Exception e) {
                     System.out.println("Invalid input format. Please try again (e.g. R1-C1).");
                 }
@@ -324,19 +361,39 @@ public class BoxPuzzle {
         /**
          * Asks for rolling direction for corner boxes.
          */
-        public String getDirectionInput() {
-            while (true) {
-                System.out.print("The chosen box can be rolled. Enter direction (UP, DOWN, LEFT, RIGHT): ");
-                String input = scanner.nextLine().trim().toUpperCase();
 
-                // Check if the direction is valid.
-                if (input.equals("UP") || input.equals("DOWN") || 
-                    input.equals("LEFT") || input.equals("RIGHT")) {
-                    return input;
-                } else {
-                    //Incorrect input requires asking again.
-                    System.out.println("Invalid direction! Please enter UP, DOWN, LEFT or RIGHT.");
-                }
+        public String getDirectionInput(int row, int col) {
+            // Determine choices according to location
+            String horzText;
+            String horzDir;
+
+            if (col == 0) {
+                horzText = "right";
+                horzDir = "RIGHT";
+            } else {
+                horzText = "left";
+                horzDir = "LEFT";
+            }
+
+            String vertText;
+            String vertDir;
+
+            if (row == 0) {
+                vertText = "downwards";
+                vertDir = "DOWN";
+            } else {
+                vertText = "upwards";
+                vertDir = "UP";
+            }
+
+            while (true) {
+                System.out.printf("The chosen box can be rolled to either [1] %s or [2] %s: ", horzText, vertText);
+                String choice = scanner.nextLine().trim();
+
+                if (choice.equals("1")) return horzDir;
+                if (choice.equals("2")) return vertDir;
+
+                System.out.println("Invalid input. Please enter 1 or 2.");
             }
         }
 
