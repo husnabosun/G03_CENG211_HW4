@@ -120,8 +120,8 @@ public class BoxPuzzle {
     /**
      * Executes the first stage of a turn: Rolling.
      * Handles edge selection, direction determination, and the domino effect.
-     * * @param menu The menu instance to handle user input.
-     * @throws UnmovableFixedBoxException if the user selects a FixedBox on the edge.
+     * menu The menu instance to handle user input.
+     * UnmovableFixedBoxException if the user selects a FixedBox on the edge.
      */
     private void runFirstStage(Menu menu) throws UnmovableFixedBoxException {
         // 1. Get Edge Box Location
@@ -246,8 +246,8 @@ public class BoxPuzzle {
 
     /**
      * Executes the second stage of a turn: Opening a box and using tools.
-     * * @param menu The menu instance.
-     * @throws EmptyBoxException if the opened box has no tool.
+     * menu The menu instance.
+     * EmptyBoxException if the opened box has no tool.
      */
     private void runSecondStage(Menu menu) throws EmptyBoxException {
         // If no boxes moved in Stage 1 (due to exception or logic), skip Stage 2.

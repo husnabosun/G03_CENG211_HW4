@@ -12,9 +12,9 @@ public abstract class SpecialTool {
     /**
      * Uses the tool on the grid at the specified location with the target letter.
      *
-     * @param grid The BoxGrid to apply the tool on
-     * @param location The location string (e.g., "R2-C4")
-     * @param targetLetter The target letter to stamp boxes with
+     * grid The BoxGrid to apply the tool on
+     * location The location string (e.g., "R2-C4")
+     * targetLetter The target letter to stamp boxes with
      */
     public abstract void useTool(BoxGrid grid, String location, Letter targetLetter);
 
