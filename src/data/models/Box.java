@@ -80,6 +80,57 @@ public abstract class Box {
         boxFaces.set(1, upFace);
     }
 
+    /**
+     * Rolls the box in the specified direction, simulating dice rolling.
+     * Updates the box faces accordingly.
+     *
+     * Face indices: 0=Top, 1=Bottom, 2=Front, 3=Back, 4=Left, 5=Right
+     */
+    public void roll(String direction) {
+        Letter temp;
+
+        switch (direction.toUpperCase()) {
+            case "RIGHT":
+                // Top -> Right, Right -> Bottom, Bottom -> Left, Left -> Top
+                temp = boxFaces.get(0);
+                boxFaces.set(0, boxFaces.get(4));  // Left becomes Top
+                boxFaces.set(4, boxFaces.get(1));  // Bottom becomes Left
+                boxFaces.set(1, boxFaces.get(5));  // Right becomes Bottom
+                boxFaces.set(5, temp);             // Top becomes Right
+                break;
+
+            case "LEFT":
+                // Top -> Left, Left -> Bottom, Bottom -> Right, Right -> Top
+                temp = boxFaces.get(0);
+                boxFaces.set(0, boxFaces.get(5));  // Right becomes Top
+                boxFaces.set(5, boxFaces.get(1));  // Bottom becomes Right
+                boxFaces.set(1, boxFaces.get(4));  // Left becomes Bottom
+                boxFaces.set(4, temp);             // Top becomes Left
+                break;
+
+            case "UP":
+                // Top -> Back, Back -> Bottom, Bottom -> Front, Front -> Top
+                temp = boxFaces.get(0);
+                boxFaces.set(0, boxFaces.get(2));  // Front becomes Top
+                boxFaces.set(2, boxFaces.get(1));  // Bottom becomes Front
+                boxFaces.set(1, boxFaces.get(3));  // Back becomes Bottom
+                boxFaces.set(3, temp);             // Top becomes Back
+                break;
+
+            case "DOWN":
+                // Top -> Front, Front -> Bottom, Bottom -> Back, Back -> Top
+                temp = boxFaces.get(0);
+                boxFaces.set(0, boxFaces.get(3));  // Back becomes Top
+                boxFaces.set(3, boxFaces.get(1));  // Bottom becomes Back
+                boxFaces.set(1, boxFaces.get(2));  // Front becomes Bottom
+                boxFaces.set(2, temp);             // Top becomes Front
+                break;
+
+            default:
+                System.out.println("Invalid roll direction: " + direction);
+        }
+    }
+
     public abstract boolean canRoll();
 
     public abstract boolean allowsDomino();
