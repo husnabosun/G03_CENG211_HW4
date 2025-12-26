@@ -353,7 +353,7 @@ public class BoxPuzzle {
                 } else if (input.equals("2")) {
                     return false;
                 } else {
-                    // Guidelines require re-asking for ANY incorrect input [cite: 103, 104]
+                    // Guidelines require re-asking for ANY incorrect input.
                     System.out.println("Invalid input! Please enter 1 or 2.");
                 }
             }
